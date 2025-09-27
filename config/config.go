@@ -14,12 +14,17 @@ type DbConfig struct {
 	TableName        string
 }
 
+type DomainConfig struct {
+	Domain string
+	Port   string
+	Prefix string
+}
+
 type Config struct {
-	DbConfig    *DbConfig
-	TgApi       string
-	Domain      string
-	CodeLength  int
-	UrlLifeDays int
+	DbConfig     *DbConfig
+	DomainConfig *DomainConfig
+	CodeLength   int
+	UrlLifeDays  int
 }
 
 func Configuration() (*Config, error) {
@@ -41,12 +46,15 @@ func Configuration() (*Config, error) {
 
 	return &Config{
 		DbConfig: &DbConfig{
-			ConnectionString: getEnvStr("DB", ""),
-			Driver:           getEnvStr("DRIVER", ""),
-			TableName:        getEnvStr("TABLE_NAME", ""),
+			ConnectionString: getEnvStr("DB", "urlDb"),
+			Driver:           getEnvStr("DRIVER", "sqlite3"),
+			TableName:        getEnvStr("TABLE_NAME", "url_short"),
 		},
-		TgApi:       getEnvStr("TG_BOT_API", ""),
-		Domain:      getEnvStr("DOMAIN", ""),
+		DomainConfig: &DomainConfig{
+			Domain: getEnvStr("DOMAIN", "localhost"),
+			Port:   getEnvStr("PORT", "8080"),
+			Prefix: getEnvStr("DOMAIN_PREFIX", "http"),
+		},
 		CodeLength:  codeLength,
 		UrlLifeDays: urlLifeDays,
 	}, nil
