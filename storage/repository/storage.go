@@ -8,22 +8,22 @@ import (
 )
 
 type StorageRepositoryDB struct {
-	DB     *sql.DB
-	Config *config.Config
+	db     *sql.DB
+	config *config.Config
 }
 
 func NewStorageRepository(db *sql.DB, config *config.Config) *StorageRepositoryDB {
 	return &StorageRepositoryDB{
-		DB:     db,
-		Config: config,
+		db:     db,
+		config: config,
 	}
 }
 
 func (storageRepo *StorageRepositoryDB) IsExists(code string) (bool, error) {
 
-	query := fmt.Sprintf("SELECT COUNT(Code) FROM %s WHERE Code = '%s' LIMIT 1", storageRepo.Config.DbConfig.TableName, code)
+	query := fmt.Sprintf("SELECT COUNT(Code) FROM %s WHERE Code = '%s' LIMIT 1", storageRepo.config.DbConfig.TableName, code)
 
-	result := storageRepo.DB.QueryRow(query)
+	result := storageRepo.db.QueryRow(query)
 
 	var shorterCode *int
 
@@ -40,9 +40,9 @@ func (storageRepo *StorageRepositoryDB) IsExists(code string) (bool, error) {
 }
 
 func (storageRepo *StorageRepositoryDB) ClearOldCode() error {
-	query := fmt.Sprintf("SELECT Id FROM %s WHERE datetime(FinallyDate) < DATETIME('now')", storageRepo.Config.DbConfig.TableName)
+	query := fmt.Sprintf("SELECT Id FROM %s WHERE datetime(FinallyDate) < DATETIME('now')", storageRepo.config.DbConfig.TableName)
 
-	resultSelect, err := storageRepo.DB.Query(query)
+	resultSelect, err := storageRepo.db.Query(query)
 	if err != nil {
 		return fmt.Errorf("couldn't select old Ids: %v", err)
 	}
@@ -67,9 +67,9 @@ func (storageRepo *StorageRepositoryDB) ClearOldCode() error {
 	if len(oldIds) > 0 {
 		for _, value := range oldIds {
 
-			query = fmt.Sprintf("DELETE FROM %s WHERE Id = %d", storageRepo.Config.DbConfig.TableName, *value)
+			query = fmt.Sprintf("DELETE FROM %s WHERE Id = %d", storageRepo.config.DbConfig.TableName, *value)
 
-			_, err := storageRepo.DB.Exec(query)
+			_, err := storageRepo.db.Exec(query)
 			if err != nil {
 				return fmt.Errorf("couldn't delete row with Id = %d: %v", *value, err)
 			}
@@ -81,14 +81,30 @@ func (storageRepo *StorageRepositoryDB) ClearOldCode() error {
 
 func (storageRepo *StorageRepositoryDB) AddCode(code string, url string) error {
 
-	date := time.Now().AddDate(0, 0, storageRepo.Config.UrlLifeDays).UTC()
+	date := time.Now().AddDate(0, 0, storageRepo.config.UrlLifeDays).UTC()
 	dateFormat := date.Format("2006-01-02 15:04:05")
 
-	query := fmt.Sprintf("INSERT INTO %s (Code, UrlBase, FinallyDate) VALUES('%s', '%s', '%s')", storageRepo.Config.DbConfig.TableName, code, url, dateFormat)
+	query := fmt.Sprintf("INSERT INTO %s (Code, UrlBase, FinallyDate) VALUES('%s', '%s', '%s')", storageRepo.config.DbConfig.TableName, code, url, dateFormat)
 
-	_, err := storageRepo.DB.Exec(query)
+	_, err := storageRepo.db.Exec(query)
 	if err != nil {
 		return fmt.Errorf("couldn't add new code '%s' to DB: %v", code, err)
 	}
 	return nil
+}
+
+func (storageRepo *StorageRepositoryDB) GetBaseUrl(code string) (string, error) {
+
+	query := fmt.Sprintf("SELECT UrlBase FROM %s WHERE Code = '%s'", storageRepo.config.DbConfig.TableName, code)
+
+	rows := storageRepo.db.QueryRow(query)
+
+	var baseUrl *string
+
+	err := rows.Scan(&baseUrl)
+	if err != nil {
+		return "", fmt.Errorf("couldn't get base url by code '%s': %v", code, err)
+	}
+
+	return *baseUrl, nil
 }
