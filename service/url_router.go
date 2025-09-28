@@ -17,7 +17,7 @@ type UrlRouter struct {
 
 func NewUrlRouter(configuration *config.Config) (*UrlRouter, error) {
 
-	db, err := storage.DbInit()
+	db, err := storage.DbInit(configuration)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't init DB: %v", err)
 	}
@@ -46,15 +46,13 @@ func (urlRouter *UrlRouter) GetUrlByCode(code string) (string, error) {
 		return "", fmt.Errorf("couldn't get url: %v", err)
 	}
 
-	fmt.Println(1)
-
 	return baseUrl, nil
 }
 
-func (urlRouter *UrlRouter) AddUrl(baseUrl string) (string, error) {
+func (urlRouter *UrlRouter) AddUrl(baseUrl string) (string, string, error) {
 	err := (*urlRouter.repo).ClearOldCode()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	if !strings.HasPrefix(baseUrl, "https://") && !strings.HasPrefix(baseUrl, "http://") {
@@ -63,7 +61,7 @@ func (urlRouter *UrlRouter) AddUrl(baseUrl string) (string, error) {
 
 	_, err = url.ParseRequestURI(baseUrl)
 	if err != nil {
-		return "", fmt.Errorf("wrong url '%s': %v", baseUrl, err)
+		return "", "", fmt.Errorf("wrong url '%s': %v", baseUrl, err)
 	}
 
 	exists := true
@@ -75,16 +73,16 @@ func (urlRouter *UrlRouter) AddUrl(baseUrl string) (string, error) {
 		exists, err = (*urlRouter.repo).IsExists(code)
 
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 	}
 
 	err = (*urlRouter.repo).AddCode(code, baseUrl)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return code, nil
+	return code, baseUrl, nil
 }
 
 func generateString(length int) string {
