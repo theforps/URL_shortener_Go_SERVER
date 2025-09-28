@@ -75,3 +75,12 @@ func getEnvInt(key string, defaultValue int) (int, error) {
 	}
 	return defaultValue, nil
 }
+
+func (configuration *Config) GetDomain() string {
+
+	domain := fmt.Sprintf("%s://%s:%s",
+		configuration.DomainConfig.Prefix,
+		configuration.DomainConfig.Domain,
+		configuration.DomainConfig.Port)
+	return domain
+}
