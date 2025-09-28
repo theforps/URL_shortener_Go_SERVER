@@ -10,45 +10,30 @@ import (
 )
 
 // DbInit Initializing a storage connection
-func DbInit() (*sql.DB, error) {
+func DbInit(configuration *config.Config) (*sql.DB, error) {
 
-	err := dbCreate()
+	db, err := dbCreate(configuration)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't create DB: %v", err)
-	}
-
-	configuration, err := config.Configuration()
-	if err != nil {
-		return nil, fmt.Errorf("couldn't get config: %v", err)
-	}
-
-	db, err := sql.Open(configuration.DbConfig.Driver, configuration.DbConfig.ConnectionString)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't open DB connection: %v", err)
 	}
 
 	return db, nil
 }
 
 // DbCreate Create DB if not exists
-func dbCreate() error {
+func dbCreate(configuration *config.Config) (*sql.DB, error) {
 
-	configuration, err := config.Configuration()
-	if err != nil {
-		return fmt.Errorf("couldn't get config: %v", err)
-	}
-
-	_, err = os.ReadFile(configuration.DbConfig.ConnectionString)
+	_, err := os.ReadFile(configuration.DbConfig.ConnectionString)
 	if err != nil {
 		_, err = os.Create(configuration.DbConfig.ConnectionString)
 		if err != nil {
-			return fmt.Errorf("couldn't create DB file %s: %v", configuration.DbConfig.ConnectionString, err)
+			return nil, fmt.Errorf("couldn't create DB file %s: %v", configuration.DbConfig.ConnectionString, err)
 		}
 	}
 
 	db, err := sql.Open(configuration.DbConfig.Driver, configuration.DbConfig.ConnectionString)
 	if err != nil {
-		return fmt.Errorf("couldn't open DB connection: %v", err)
+		return nil, fmt.Errorf("couldn't open DB connection: %v", err)
 	}
 
 	query := fmt.Sprintf(
@@ -58,8 +43,8 @@ func dbCreate() error {
 
 	_, err = db.Exec(query)
 	if err != nil {
-		return fmt.Errorf("couldn't create table %s: %v", configuration.DbConfig.TableName, err)
+		return nil, fmt.Errorf("couldn't create table %s: %v", configuration.DbConfig.TableName, err)
 	}
 
-	return nil
+	return db, nil
 }
