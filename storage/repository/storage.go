@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"UrlShorter/config"
 	"database/sql"
 	"fmt"
 	"time"
+	"url_shortner/config"
 )
 
 type StorageRepositoryDB struct {

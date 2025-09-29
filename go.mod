@@ -1,4 +1,4 @@
-module UrlShorter
+module url_shortner
 
 go 1.25
 
