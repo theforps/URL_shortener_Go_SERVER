@@ -1,18 +1,18 @@
 package service
 
 import (
-	"UrlShorter/config"
-	"UrlShorter/storage"
-	"UrlShorter/storage/repository"
 	"fmt"
 	"math/rand/v2"
 	"net/url"
 	"strings"
+	"url_shortner/config"
+	"url_shortner/storage"
+	"url_shortner/storage/repository"
 )
 
 type UrlRouter struct {
 	config *config.Config
-	repo   *repository.StorageRepository
+	repo   repository.StorageRepository
 }
 
 func NewUrlRouter(configuration *config.Config) (*UrlRouter, error) {
@@ -26,13 +26,13 @@ func NewUrlRouter(configuration *config.Config) (*UrlRouter, error) {
 
 	return &UrlRouter{
 		config: configuration,
-		repo:   &storageRepo,
+		repo:   storageRepo,
 	}, nil
 }
 
 func (urlRouter *UrlRouter) GetUrlByCode(code string) (string, error) {
 
-	check, err := (*urlRouter.repo).IsExists(code)
+	check, err := urlRouter.repo.IsExists(code)
 	if err != nil {
 		return "", err
 	}
@@ -41,7 +41,7 @@ func (urlRouter *UrlRouter) GetUrlByCode(code string) (string, error) {
 		return "", nil
 	}
 
-	baseUrl, err := (*urlRouter.repo).GetBaseUrl(code)
+	baseUrl, err := urlRouter.repo.GetBaseUrl(code)
 	if err != nil {
 		return "", fmt.Errorf("couldn't get url: %v", err)
 	}
@@ -50,7 +50,7 @@ func (urlRouter *UrlRouter) GetUrlByCode(code string) (string, error) {
 }
 
 func (urlRouter *UrlRouter) AddUrl(baseUrl string) (string, string, error) {
-	err := (*urlRouter.repo).ClearOldCode()
+	err := urlRouter.repo.ClearOldCode()
 	if err != nil {
 		return "", "", err
 	}
@@ -68,16 +68,16 @@ func (urlRouter *UrlRouter) AddUrl(baseUrl string) (string, string, error) {
 	var code string
 
 	for exists {
-		code = generateString(urlRouter.config.CodeLength)
+		code = generateString(urlRouter.config.CodeLength, urlRouter.config)
 
-		exists, err = (*urlRouter.repo).IsExists(code)
+		exists, err = urlRouter.repo.IsExists(code)
 
 		if err != nil {
 			return "", "", err
 		}
 	}
 
-	err = (*urlRouter.repo).AddCode(code, baseUrl)
+	err = urlRouter.repo.AddCode(code, baseUrl)
 	if err != nil {
 		return "", "", err
 	}
@@ -85,11 +85,10 @@ func (urlRouter *UrlRouter) AddUrl(baseUrl string) (string, string, error) {
 	return code, baseUrl, nil
 }
 
-func generateString(length int) string {
+func generateString(length int, configuration *config.Config) string {
 
 	result := ""
-
-	rangeSymbols := []rune("QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890")
+	rangeSymbols := []rune(configuration.SymbolsBase)
 
 	for i := 0; i < length; i++ {
 		randIndex := rand.IntN(len(rangeSymbols))
