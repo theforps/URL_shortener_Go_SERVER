@@ -15,9 +15,11 @@ type DbConfig struct {
 }
 
 type DomainConfig struct {
-	Domain string
-	Port   string
-	Prefix string
+	DomainDev  string
+	PortDev    string
+	PrefixDev  string
+	DomainProd string
+	PrefixProd string
 }
 
 type Config struct {
@@ -25,6 +27,8 @@ type Config struct {
 	DomainConfig *DomainConfig
 	CodeLength   int
 	UrlLifeDays  int
+	Lvl          string
+	SymbolsBase  string
 }
 
 func Configuration() (*Config, error) {
@@ -51,12 +55,16 @@ func Configuration() (*Config, error) {
 			TableName:        getEnvStr("TABLE_NAME", "url_short"),
 		},
 		DomainConfig: &DomainConfig{
-			Domain: getEnvStr("DOMAIN", "localhost"),
-			Port:   getEnvStr("PORT", "8080"),
-			Prefix: getEnvStr("DOMAIN_PREFIX", "http"),
+			DomainDev:  getEnvStr("DOMAIN_DEV", "localhost"),
+			PortDev:    getEnvStr("PORT_DEV", "5050"),
+			PrefixDev:  getEnvStr("PREFIX_DEV", "http"),
+			DomainProd: getEnvStr("DOMAIN_PROD", "example.com"),
+			PrefixProd: getEnvStr("PREFIX_PROD", "https"),
 		},
 		CodeLength:  codeLength,
 		UrlLifeDays: urlLifeDays,
+		Lvl:         getEnvStr("LVL", "DEV"),
+		SymbolsBase: getEnvStr("SYMBOLS_BASE", "123"),
 	}, nil
 }
 
@@ -74,13 +82,4 @@ func getEnvInt(key string, defaultValue int) (int, error) {
 		return resConv, err
 	}
 	return defaultValue, nil
-}
-
-func (configuration *Config) GetDomain() string {
-
-	domain := fmt.Sprintf("%s://%s:%s",
-		configuration.DomainConfig.Prefix,
-		configuration.DomainConfig.Domain,
-		configuration.DomainConfig.Port)
-	return domain
 }

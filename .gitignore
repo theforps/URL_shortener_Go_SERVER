@@ -1,5 +1,5 @@
 .idea
 .vs
-.env
+prod.env
 *.sqlite
 *.exe
