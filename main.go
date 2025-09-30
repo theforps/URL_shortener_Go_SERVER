@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"url_shortner/config"
-	"url_shortner/handlers"
+	"url_shortener/config"
+	"url_shortener/handlers"
 )
 
 func main() {

@@ -69,8 +69,9 @@ func Configuration() (config *Config, err error) {
 }
 
 func getEnvStr(key string, defaultValue string) (defValue string) {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
+	defValue, isExists := os.LookupEnv(key)
+	if isExists {
+		return
 	}
 
 	return defaultValue
@@ -78,8 +79,8 @@ func getEnvStr(key string, defaultValue string) (defValue string) {
 
 func getEnvInt(key string, defaultValue int) (defValue int, err error) {
 	if value, exists := os.LookupEnv(key); exists {
-		resConv, err := strconv.Atoi(value)
-		return resConv, err
+		defValue, err = strconv.Atoi(value)
+		return
 	}
 	return defaultValue, nil
 }

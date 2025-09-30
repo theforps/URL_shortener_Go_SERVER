@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"url_shortner/config"
+	"url_shortener/config"
 
 	_ "github.com/mattn/go-sqlite3"
 )

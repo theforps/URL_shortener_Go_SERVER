@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"url_shortner/config"
-	"url_shortner/service"
+	"url_shortener/config"
+	"url_shortener/service"
 )
 
 func Redirect(configuration *config.Config) (handler http.HandlerFunc) {

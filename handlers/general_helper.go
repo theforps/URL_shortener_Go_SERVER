@@ -2,19 +2,32 @@ package handlers
 
 import (
 	"fmt"
+	"net"
 	"net/http"
-	"url_shortner/config"
+	"strings"
+
+	"url_shortener/config"
 )
 
 func ReadUserIP(r *http.Request) (userIp string) {
-	userIp = r.Header.Get("X-Real-Ip")
-	if userIp == "" {
-		userIp = r.Header.Get("X-Forwarded-For")
+	xForwardedFor := r.Header.Get("X-Forwarded-For")
+	if xForwardedFor != "" {
+		ips := strings.Split(xForwardedFor, ",")
+		if len(ips) > 0 {
+			return strings.TrimSpace(ips[0])
+		}
 	}
-	if userIp == "" {
-		userIp = r.RemoteAddr
+
+	xRealIP := r.Header.Get("X-Real-Ip")
+	if xRealIP != "" {
+		return strings.TrimSpace(xRealIP)
 	}
-	return
+
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return ip
 }
 
 func GetRedirectUrl(configuration *config.Config, code string) (redirectUrl string) {

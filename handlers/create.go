@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"url_shortner/config"
-	"url_shortner/handlers/entity"
-	"url_shortner/service"
+	"url_shortener/config"
+	"url_shortener/handlers/entity"
+	"url_shortener/service"
 )
 
 func Create(configuration *config.Config) http.HandlerFunc {

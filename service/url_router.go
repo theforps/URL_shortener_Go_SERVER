@@ -6,9 +6,9 @@ import (
 	"net/url"
 	"strings"
 
-	"url_shortner/config"
-	"url_shortner/storage"
-	"url_shortner/storage/repository"
+	"url_shortener/config"
+	"url_shortener/storage"
+	"url_shortener/storage/repository"
 )
 
 type UrlRouter struct {
