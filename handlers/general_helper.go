@@ -6,29 +6,27 @@ import (
 	"url_shortner/config"
 )
 
-func ReadUserIP(r *http.Request) string {
-	IPAddress := r.Header.Get("X-Real-Ip")
-	if IPAddress == "" {
-		IPAddress = r.Header.Get("X-Forwarded-For")
+func ReadUserIP(r *http.Request) (userIp string) {
+	userIp = r.Header.Get("X-Real-Ip")
+	if userIp == "" {
+		userIp = r.Header.Get("X-Forwarded-For")
 	}
-	if IPAddress == "" {
-		IPAddress = r.RemoteAddr
+	if userIp == "" {
+		userIp = r.RemoteAddr
 	}
-	return IPAddress
+	return
 }
 
-func GetFinnalyUrl(configuration *config.Config, code string) string {
-	finallyUrl := ""
-
+func GetRedirectUrl(configuration *config.Config, code string) (redirectUrl string) {
 	if configuration.Lvl == "PROD" {
-		finallyUrl = fmt.Sprintf(
+		redirectUrl = fmt.Sprintf(
 			"%s://%s/%s",
 			configuration.DomainConfig.PrefixProd,
 			configuration.DomainConfig.DomainProd,
 			code,
 		)
 	} else {
-		finallyUrl = fmt.Sprintf(
+		redirectUrl = fmt.Sprintf(
 			"%s://%s:%s/%s",
 			configuration.DomainConfig.PrefixDev,
 			configuration.DomainConfig.DomainDev,
@@ -37,5 +35,5 @@ func GetFinnalyUrl(configuration *config.Config, code string) string {
 		)
 	}
 
-	return finallyUrl
+	return
 }

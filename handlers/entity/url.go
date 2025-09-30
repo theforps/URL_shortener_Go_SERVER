@@ -1,5 +1,5 @@
 package entity
 
-type URL struct {
+type UrlDTO struct {
 	Url string `json:"url"`
 }

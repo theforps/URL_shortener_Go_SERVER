@@ -19,27 +19,25 @@ func NewStorageRepository(db *sql.DB, config *config.Config) *StorageRepositoryD
 	}
 }
 
-func (storageRepo *StorageRepositoryDB) IsExists(code string) (bool, error) {
+func (storageRepo *StorageRepositoryDB) IsExists(code string) (isExists bool, err error) {
 
 	query := fmt.Sprintf("SELECT COUNT(Code) FROM %s WHERE Code = '%s' LIMIT 1", storageRepo.config.DbConfig.TableName, code)
 
-	result := storageRepo.db.QueryRow(query)
+	dbResponse := storageRepo.db.QueryRow(query)
 
-	var shorterCode *int
-
-	err := result.Scan(&shorterCode)
+	var shorterCode int
+	err = dbResponse.Scan(&shorterCode)
 	if err != nil {
 		return false, fmt.Errorf("couldn't check code: %v", err)
 	}
-
-	if *shorterCode > 0 {
+	if shorterCode > 0 {
 		return true, nil
 	}
 
 	return false, nil
 }
 
-func (storageRepo *StorageRepositoryDB) ClearOldCode() error {
+func (storageRepo *StorageRepositoryDB) ClearOld() (err error) {
 	query := fmt.Sprintf("SELECT Id FROM %s WHERE datetime(FinallyDate) < DATETIME('now')", storageRepo.config.DbConfig.TableName)
 
 	resultSelect, err := storageRepo.db.Query(query)
@@ -50,13 +48,13 @@ func (storageRepo *StorageRepositoryDB) ClearOldCode() error {
 	var oldIds []*int
 
 	for resultSelect.Next() {
-		var oldId *int
+		var oldId int
 
 		err = resultSelect.Scan(&oldId)
 		if err != nil {
 			return fmt.Errorf("couldn't get old Id: %v", err)
 		}
-		oldIds = append(oldIds, oldId)
+		oldIds = append(oldIds, &oldId)
 	}
 
 	err = resultSelect.Close()
@@ -69,7 +67,7 @@ func (storageRepo *StorageRepositoryDB) ClearOldCode() error {
 
 			query = fmt.Sprintf("DELETE FROM %s WHERE Id = %d", storageRepo.config.DbConfig.TableName, *value)
 
-			_, err := storageRepo.db.Exec(query)
+			_, err = storageRepo.db.Exec(query)
 			if err != nil {
 				return fmt.Errorf("couldn't delete row with Id = %d: %v", *value, err)
 			}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
 	"url_shortner/config"
 	"url_shortner/handlers"
 )
@@ -22,11 +23,11 @@ func main() {
 		Handler: handler,
 	}
 
-	log.Printf("server is starting using :%s", configuration.DomainConfig.PortDev)
+	log.Printf("the server started on port %s", configuration.DomainConfig.PortDev)
 
 	err = server.ListenAndServe()
 	if err != nil {
-		log.Println(err)
+		log.Printf("the server is stopped due to an error: %v", err)
 	}
 }
 

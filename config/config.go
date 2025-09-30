@@ -31,9 +31,9 @@ type Config struct {
 	SymbolsBase  string
 }
 
-func Configuration() (*Config, error) {
+func Configuration() (config *Config, err error) {
 
-	err := godotenv.Load()
+	err = godotenv.Load()
 	if err != nil {
 		return nil, fmt.Errorf("couldn't load .env: %v", err)
 	}
@@ -68,7 +68,7 @@ func Configuration() (*Config, error) {
 	}, nil
 }
 
-func getEnvStr(key string, defaultValue string) string {
+func getEnvStr(key string, defaultValue string) (defValue string) {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
 	}
@@ -76,7 +76,7 @@ func getEnvStr(key string, defaultValue string) string {
 	return defaultValue
 }
 
-func getEnvInt(key string, defaultValue int) (int, error) {
+func getEnvInt(key string, defaultValue int) (defValue int, err error) {
 	if value, exists := os.LookupEnv(key); exists {
 		resConv, err := strconv.Atoi(value)
 		return resConv, err

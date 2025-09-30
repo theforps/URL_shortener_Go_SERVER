@@ -3,11 +3,12 @@ package handlers
 import (
 	"log"
 	"net/http"
+
 	"url_shortner/config"
 	"url_shortner/service"
 )
 
-func Redirect(configuration *config.Config) http.HandlerFunc {
+func Redirect(configuration *config.Config) (handler http.HandlerFunc) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		urlRouter, err := service.NewUrlRouter(configuration)
 		if err != nil {
@@ -17,21 +18,21 @@ func Redirect(configuration *config.Config) http.HandlerFunc {
 
 		code := r.PathValue("code")
 
-		baseUrl, err := urlRouter.GetUrlByCode(code)
+		userUrl, err := urlRouter.GetUrlByCode(code)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "502 couldn't get url", http.StatusBadGateway)
 		}
 
 		userIp := ReadUserIP(r)
-		finnalyUrl := GetFinnalyUrl(configuration, code)
+		redirectUrl := GetRedirectUrl(configuration, code)
 
 		log.Printf(
-			"%s clicked from %s to %s",
+			"user - %s redirected %s -> %s",
 			userIp,
-			finnalyUrl,
-			baseUrl,
+			redirectUrl,
+			userUrl,
 		)
-		http.Redirect(w, r, baseUrl, http.StatusMovedPermanently)
+		http.Redirect(w, r, userUrl, http.StatusMovedPermanently)
 	}
 }
