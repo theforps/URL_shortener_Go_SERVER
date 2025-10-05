@@ -33,7 +33,7 @@ type Config struct {
 
 func Configuration() (config *Config, err error) {
 
-	err = godotenv.Load()
+	err = godotenv.Load("../.env")
 	if err != nil {
 		return nil, fmt.Errorf("couldn't load .env: %v", err)
 	}
