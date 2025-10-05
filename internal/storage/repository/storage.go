@@ -4,8 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
-
-	"url_shortener/config"
+	"url_shortener/internal/config"
 )
 
 type StorageRepositoryDB struct {

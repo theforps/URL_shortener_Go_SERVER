@@ -4,8 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-
-	"url_shortener/config"
+	"url_shortener/internal/config"
 
 	_ "github.com/mattn/go-sqlite3"
 )

@@ -5,15 +5,14 @@ import (
 	"math/rand/v2"
 	"net/url"
 	"strings"
-
-	"url_shortener/config"
-	"url_shortener/storage"
-	"url_shortener/storage/repository"
+	"url_shortener/internal/config"
+	"url_shortener/internal/storage"
+	repository2 "url_shortener/internal/storage/repository"
 )
 
 type UrlRouter struct {
 	config *config.Config
-	repo   repository.StorageRepository
+	repo   repository2.StorageRepository
 }
 
 func NewUrlRouter(configuration *config.Config) (router *UrlRouter, err error) {
@@ -23,7 +22,7 @@ func NewUrlRouter(configuration *config.Config) (router *UrlRouter, err error) {
 		return nil, fmt.Errorf("couldn't init DB: %v", err)
 	}
 
-	var storageRepo repository.StorageRepository = repository.NewStorageRepository(db, configuration)
+	var storageRepo repository2.StorageRepository = repository2.NewStorageRepository(db, configuration)
 
 	return &UrlRouter{
 		config: configuration,

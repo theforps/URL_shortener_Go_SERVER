@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
-	"url_shortener/config"
-	"url_shortener/handlers"
+	"url_shortener/internal/config"
+	handlers2 "url_shortener/internal/handlers"
 )
 
 func main() {
@@ -35,8 +34,8 @@ func newHandler(configuration *config.Config) *http.ServeMux {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/create-url", handlers.Create(configuration))
-	mux.HandleFunc("/{code}", handlers.Redirect(configuration))
+	mux.HandleFunc("/create-url", handlers2.Create(configuration))
+	mux.HandleFunc("/{code}", handlers2.Redirect(configuration))
 
 	return mux
 }

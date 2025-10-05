@@ -3,9 +3,8 @@ package handlers
 import (
 	"log"
 	"net/http"
-
-	"url_shortener/config"
-	"url_shortener/service"
+	"url_shortener/internal/config"
+	"url_shortener/internal/service"
 )
 
 func Redirect(configuration *config.Config) (handler http.HandlerFunc) {
@@ -25,7 +24,7 @@ func Redirect(configuration *config.Config) (handler http.HandlerFunc) {
 		}
 
 		userIp := ReadUserIP(r)
-		redirectUrl := GetRedirectUrl(configuration, code)
+		redirectUrl, _ := GetRedirectUrl(configuration, code)
 
 		log.Printf(
 			"user - %s redirected %s -> %s",

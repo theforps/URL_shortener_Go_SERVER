@@ -5,10 +5,9 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"url_shortener/config"
-	"url_shortener/handlers/entity"
-	"url_shortener/service"
+	"url_shortener/internal/config"
+	"url_shortener/internal/handlers/entity"
+	"url_shortener/internal/service"
 )
 
 func Create(configuration *config.Config) http.HandlerFunc {
@@ -44,8 +43,8 @@ func Create(configuration *config.Config) http.HandlerFunc {
 				http.Error(w, "502 couldn't parse url", http.StatusBadGateway)
 			}
 
-			redirectUrl := GetRedirectUrl(configuration, generatedCode)
-			responseUrlEntity := &entity.UrlDTO{Url: redirectUrl}
+			redirectUrl, days := GetRedirectUrl(configuration, generatedCode)
+			responseUrlEntity := &entity.UrlDTO{Url: redirectUrl, DayLife: days}
 
 			jsonData, err := json.Marshal(responseUrlEntity)
 			if err != nil {

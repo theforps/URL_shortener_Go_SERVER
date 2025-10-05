@@ -5,8 +5,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
-
-	"url_shortener/config"
+	"url_shortener/internal/config"
 )
 
 func ReadUserIP(r *http.Request) (userIp string) {
@@ -30,7 +29,7 @@ func ReadUserIP(r *http.Request) (userIp string) {
 	return ip
 }
 
-func GetRedirectUrl(configuration *config.Config, code string) (redirectUrl string) {
+func GetRedirectUrl(configuration *config.Config, code string) (redirectUrl string, days int) {
 	if configuration.Lvl == "PROD" {
 		redirectUrl = fmt.Sprintf(
 			"%s://%s/%s",
@@ -47,6 +46,8 @@ func GetRedirectUrl(configuration *config.Config, code string) (redirectUrl stri
 			code,
 		)
 	}
+
+	days = configuration.UrlLifeDays
 
 	return
 }
