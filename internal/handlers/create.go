@@ -5,11 +5,13 @@ import (
 	"log"
 	"net/http"
 	"time"
+
 	"url_shortener/internal/config"
 	"url_shortener/internal/handlers/entity"
 	"url_shortener/internal/service"
 )
 
+// Create is handler for registering a new redirect
 func Create(configuration *config.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -60,7 +62,7 @@ func Create(configuration *config.Config) http.HandlerFunc {
 
 			if generatedCode != "" {
 				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusOK)
+				w.WriteHeader(http.StatusCreated)
 				w.Write(jsonData)
 			}
 		} else {

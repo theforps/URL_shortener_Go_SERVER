@@ -2,5 +2,5 @@ package entity
 
 type UrlDTO struct {
 	Url     string `json:"url"`
-	DayLife int
+	DayLife int    `json:"daylife"`
 }

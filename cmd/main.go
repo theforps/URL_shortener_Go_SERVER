@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	configuration, err := config.Configuration()
+	configuration, err := config.NewConfiguration()
 	if err != nil {
 		log.Println(err)
 	}

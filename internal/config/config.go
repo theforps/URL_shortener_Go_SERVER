@@ -11,7 +11,6 @@ import (
 type DbConfig struct {
 	ConnectionString string
 	Driver           string
-	TableName        string
 }
 
 type DomainConfig struct {
@@ -31,7 +30,8 @@ type Config struct {
 	SymbolsBase  string
 }
 
-func Configuration() (config *Config, err error) {
+// NewConfiguration create new object from .env file
+func NewConfiguration() (config *Config, err error) {
 
 	err = godotenv.Load("../.env")
 	if err != nil {
@@ -43,7 +43,7 @@ func Configuration() (config *Config, err error) {
 		return nil, fmt.Errorf("couldn't convert environment %#v: %v", codeLength, err)
 	}
 
-	urlLifeDays, err := getEnvInt("URL_LIFE_DAYS", 6)
+	urlLifeDays, err := getEnvInt("URL_LIFE_DAYS", 7)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't convert environment %#v: %v", urlLifeDays, err)
 	}
@@ -52,7 +52,6 @@ func Configuration() (config *Config, err error) {
 		DbConfig: &DbConfig{
 			ConnectionString: getEnvStr("DB", "urlDb"),
 			Driver:           getEnvStr("DRIVER", "sqlite3"),
-			TableName:        getEnvStr("TABLE_NAME", "url_short"),
 		},
 		DomainConfig: &DomainConfig{
 			DomainDev:  getEnvStr("DOMAIN_DEV", "localhost"),
@@ -68,6 +67,7 @@ func Configuration() (config *Config, err error) {
 	}, nil
 }
 
+// getEnvStr read string from file
 func getEnvStr(key string, defaultValue string) (defValue string) {
 	defValue, isExists := os.LookupEnv(key)
 	if isExists {
@@ -77,6 +77,7 @@ func getEnvStr(key string, defaultValue string) (defValue string) {
 	return defaultValue
 }
 
+// getEnvInt read int from file
 func getEnvInt(key string, defaultValue int) (defValue int, err error) {
 	if value, exists := os.LookupEnv(key); exists {
 		defValue, err = strconv.Atoi(value)

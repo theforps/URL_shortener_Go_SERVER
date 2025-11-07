@@ -1,0 +1,151 @@
+# Go URL shortener API
+
+A RESTful API service based on Go, with the ability to create customized links and redirect users.
+
+## Application Overview
+
+This Go application is a reliable REST API server that provides user link management and processing services. It is designed to be scalable, maintainable, and ready to go with proper error handling and security measures.
+
+### Key Features:
+- **RESTful API Design** - Clean and consistent API endpoints following REST principles
+- **Database Abstraction** - Support for multiple database systems with proper connection pooling
+- **Request Validation** - Comprehensive input validation and sanitization
+- **Error Handling** - Structured error responses with proper HTTP status codes
+
+### Technology Stack:
+- **Framework**: HTTP Web Framework
+- **Database**: SQLite with sqlite3 driver
+- **Configuration**: Environment variables with godotenv
+
+## API Documentation
+
+### Base URL
+http://localhost:5050
+
+### Endpoints
+**POST /create-url**
+- **Description**: Register a new user account
+- **Authentication**: Not required
+- **Request Body**:
+```json
+{
+  "url": "example.com"
+}
+```
+- **Success Response** (201 Created):
+```json
+{
+  "url": "localhost:5050/{code}",
+  "daylife": 7
+}
+```
+
+**GET /{code}**
+- **Description**: Redirects the user to another URL
+- **Authentication**: Not required
+- **Success Response** (301 Moved Permanently)
+
+## Database
+
+### Database system
+- **Primary Database**: SQLite
+- **Driver**: sqlite3
+- **Connection Pool**: Configured with 1 connection
+
+### Database schema
+**SHORT_TABLE**
+```sql
+CREATE TABLE IF NOT EXISTS SHORT_TABLE (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT, 
+    CODE TEXT, 
+    URL_BASE TEXT, 
+    FINALLY_DATE TEXT
+);
+```
+
+### Database configuration
+Environment variables for database configuration:
+```env
+# Application Configuration
+LVL='DEV'
+DOMAIN_PROD='example.com'
+PREFIX_PROD="https"
+DOMAIN_DEV='localhost'
+PREFIX_DEV="http"
+PORT_DEV="5050"
+CODE_LENGTH=6
+SYMBOLS_BASE="QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890"
+URL_LIFE_DAYS=7
+
+# Database Configuration
+DB='../urlDB.sqlite'
+DRIVER='sqlite3'
+```
+
+## How to run
+
+### Prerequisites
+- **Go 1.21+** - [Install Go](https://go.dev/dl/)
+- **MinGW** - [Install MinGW](https://sourceforge.net/projects/mingw/files/Installer/)
+- **SQLite** - [Documentation](https://www.sqlite.org/)
+- **Git** - For version control
+
+### Quick start
+1. **Clone repository:**
+```bach
+git clone https://github.com/theforps/URL_shortener_Go_SERVER.git
+cd URL_shortener_Go_SERVER
+```
+2. **Set up environment variables:**
+```bach
+cp .env.example .env
+```
+
+3. **Install dependencies:**
+```bach
+go mod download
+go mod verify
+```
+
+4. **Run the application:**
+```bach
+# Development mode with hot reload
+go run cmd/main.go
+
+# Or build and run
+go build -o api cmd/main.go
+./api
+```
+
+### Configuration Options
+Create a `.env` file with the following variables:
+```env
+# development environment DEV or PROD
+LVL='DEV'
+
+# prod domain
+DOMAIN_PROD='example.com'
+# prod prefix
+PREFIX_PROD="https"
+
+# dev domain
+DOMAIN_DEV='localhost'
+# dev prefix
+PREFIX_DEV="http"
+# dev port
+PORT_DEV="5050"
+
+# database
+DB='../urlDB.sqlite'
+# database driver
+DRIVER='sqlite3'
+
+# length of the encrypted code
+CODE_LENGTH=6
+# character base for code generation
+SYMBOLS_BASE="QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890"
+# lifetime of the link in the database
+URL_LIFE_DAYS=7
+```
+
+The API should now be running and accessible at `http://localhost:5050`

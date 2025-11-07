@@ -7,6 +7,7 @@ import (
 	"url_shortener/internal/service"
 )
 
+// Redirect is handler for redirecting a user from one url to another
 func Redirect(configuration *config.Config) (handler http.HandlerFunc) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		urlRouter, err := service.NewUrlRouter(configuration)

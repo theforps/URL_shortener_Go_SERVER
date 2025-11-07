@@ -9,7 +9,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// DbInit Initializing a storage connection
+// DbInit initializes a storage connection
 func DbInit(configuration *config.Config) (db *sql.DB, err error) {
 
 	if !dbExists(configuration) {
@@ -27,7 +27,7 @@ func DbInit(configuration *config.Config) (db *sql.DB, err error) {
 	return db, nil
 }
 
-// opens the sql connection
+// dbOpen opens the sql connection
 func dbOpen(configuration *config.Config) (db *sql.DB, err error) {
 	db, err = sql.Open(configuration.DbConfig.Driver, configuration.DbConfig.ConnectionString)
 	if err != nil {
@@ -42,7 +42,7 @@ func dbExists(configuration *config.Config) (isExists bool) {
 	return err == nil
 }
 
-// Create DB if not exists
+// Create a new database file if not exists
 func dbCreate(configuration *config.Config) (err error) {
 
 	_, err = os.Create(configuration.DbConfig.ConnectionString)
@@ -64,14 +64,9 @@ func dbCreate(configuration *config.Config) (err error) {
 		}
 	}()
 
-	query := fmt.Sprintf(
-		"CREATE TABLE IF NOT EXISTS %s (Id INTEGER PRIMARY KEY AUTOINCREMENT, Code TEXT, UrlBase TEXT, FinallyDate TEXT)",
-		configuration.DbConfig.TableName,
-	)
-
-	_, err = db.Exec(query)
+	_, err = db.Exec("CREATE TABLE IF NOT EXISTS SHORT_TABLE (ID INTEGER PRIMARY KEY AUTOINCREMENT, CODE TEXT, URL_BASE TEXT, FINALLY_DATE TEXT)")
 	if err != nil {
-		err = fmt.Errorf("couldn't create table %s: %v", configuration.DbConfig.TableName, err)
+		err = fmt.Errorf("couldn't create table: %v", err)
 		return
 	}
 

@@ -15,6 +15,7 @@ type UrlRouter struct {
 	repo   repository2.StorageRepository
 }
 
+// NewUrlRouter creates new router
 func NewUrlRouter(configuration *config.Config) (router *UrlRouter, err error) {
 
 	db, err := storage.DbInit(configuration)
@@ -30,6 +31,7 @@ func NewUrlRouter(configuration *config.Config) (router *UrlRouter, err error) {
 	}, nil
 }
 
+// GetUrlByCode uses a unique code to pull the user URL from the database
 func (urlRouter *UrlRouter) GetUrlByCode(code string) (userUrl string, err error) {
 
 	isExists, err := urlRouter.repo.IsExists(code)
@@ -48,6 +50,7 @@ func (urlRouter *UrlRouter) GetUrlByCode(code string) (userUrl string, err error
 	return userUrl, nil
 }
 
+// AddUrl creates a unique code that binds to the user URL
 func (urlRouter *UrlRouter) AddUrl(baseUrl string) (generatedCode string, userUrl string, err error) {
 	if !strings.HasPrefix(baseUrl, "https://") && !strings.HasPrefix(baseUrl, "http://") {
 		baseUrl = "https://" + baseUrl
@@ -77,6 +80,7 @@ func (urlRouter *UrlRouter) AddUrl(baseUrl string) (generatedCode string, userUr
 	return generatedCode, baseUrl, nil
 }
 
+// ClearOldUrls deletes old records in the database
 func (urlRouter *UrlRouter) ClearOldUrls() (err error) {
 	err = urlRouter.repo.ClearOld()
 	if err != nil {
@@ -85,6 +89,7 @@ func (urlRouter *UrlRouter) ClearOldUrls() (err error) {
 	return nil
 }
 
+// generateString creates a unique code for the user
 func generateString(length int, configuration *config.Config) (generatedCode string) {
 
 	rangeSymbols := []rune(configuration.SymbolsBase)

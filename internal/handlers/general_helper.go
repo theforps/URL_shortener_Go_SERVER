@@ -8,6 +8,7 @@ import (
 	"url_shortener/internal/config"
 )
 
+// ReadUserIP is a method that helps to read the user's IP address
 func ReadUserIP(r *http.Request) (userIp string) {
 	xForwardedFor := r.Header.Get("X-Forwarded-For")
 	if xForwardedFor != "" {
@@ -29,6 +30,7 @@ func ReadUserIP(r *http.Request) (userIp string) {
 	return ip
 }
 
+// GetRedirectUrl is a method that creates a server url for the user
 func GetRedirectUrl(configuration *config.Config, code string) (redirectUrl string, days int) {
 	if configuration.Lvl == "PROD" {
 		redirectUrl = fmt.Sprintf(
