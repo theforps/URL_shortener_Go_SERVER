@@ -1,0 +1,44 @@
+services:
+  url-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:5050"
+    environment:
+      - CONNECTION_STRING=postgres://url_user:url_password@postgres:5432/url_db?sslmode=disable
+      - MODE=PROD
+      - SYMBOLS=QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - url-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=url_db
+      - POSTGRES_USER=url_user
+      - POSTGRES_PASSWORD=url_password
+    ports:
+      - "5431:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - url-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U url_user -d url_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  url-network:
+    driver: bridge
