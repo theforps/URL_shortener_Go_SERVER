@@ -1,151 +1,139 @@
-# Go URL shortener API
+# API для сервиса сокращения ссылок
+API предназначен для создания коротких ссылок, которые перенаправляют пользователя на оригинальный URL. Сервис упрощает работу с длинными ссылками, делает их удобными для передачи, хранения и использования в интерфейсах.
 
-A RESTful API service based on Go, with the ability to create customized links and redirect users.
 
-## Application Overview
+## Документация API
 
-This Go application is a reliable REST API server that provides user link management and processing services. It is designed to be scalable, maintainable, and ready to go with proper error handling and security measures.
 
-### Key Features:
-- **RESTful API Design** - Clean and consistent API endpoints following REST principles
-- **Database Abstraction** - Support for multiple database systems with proper connection pooling
-- **Request Validation** - Comprehensive input validation and sanitization
-- **Error Handling** - Structured error responses with proper HTTP status codes
-
-### Technology Stack:
-- **Framework**: HTTP Web Framework
-- **Database**: SQLite with sqlite3 driver
-- **Configuration**: Environment variables with godotenv
-
-## API Documentation
-
-### Base URL
-http://localhost:5050
-
-### Endpoints
-**POST /create-url**
-- **Description**: Register a new user account
-- **Authentication**: Not required
-- **Request Body**:
+### Конечные точки
+**GET /health**
+- **Описание**: проверка работы сервиса
+- **Успешный ответ** (200 OK):
 ```json
 {
-  "url": "example.com"
-}
-```
-- **Success Response** (201 Created):
-```json
-{
-  "url": "localhost:5050/{code}",
-  "daylife": 7
+  "status":  "ok",
+  "service": "url-api"
 }
 ```
 
-**GET /{code}**
-- **Description**: Redirects the user to another URL
-- **Authentication**: Not required
-- **Success Response** (301 Moved Permanently)
+**POST /shorten**
+- **Описание**: принимает длинную ссылку, возвращает короткий идентификатор
+- **Тело запроса**:
+```json
+{
+  "base_url": "https://example.com",
+  "day_life": 3,
+  "code_length" : 6
+}
+```
+- **Успешный ответ** (200 OK):
+```json
+{
+  "status_code": 200,
+	"description": "ok",
+	"data": {
+		"uniq_code": "rttRYU",
+		"views": 0,
+		"finally_date": "2026-03-25 21:01:52"
+	}
+}
+```
 
-## Database
+**GET /{short_id}**
+- **Описание**: редиректит на оригинальную ссылку
+- **Успешный ответ** (301 Moved Permanently)
 
-### Database system
-- **Primary Database**: SQLite
-- **Driver**: sqlite3
-- **Connection Pool**: Configured with 1 connection
 
-### Database schema
-**SHORT_TABLE**
+**GET /stats/{short_id}**
+- **Описание**: возвращает количество переходов по ссылке
+- **Успешный ответ** (200 OK):
+```json
+{
+	"status_code": 200,
+	"description": "ok",
+	"data": 63
+}
+```
+
+
+## База данных
+
+
+### Конфигурация базы данных
+- **База данных**: PostgreSQL
+- **Драйвер**: postgres
+
+
+### Схема базы данных
+**url_table**
 ```sql
-CREATE TABLE IF NOT EXISTS SHORT_TABLE (
-    ID INTEGER PRIMARY KEY AUTOINCREMENT, 
-    CODE TEXT, 
-    URL_BASE TEXT, 
-    FINALLY_DATE TEXT
+CREATE TABLE IF NOT EXISTS url_table (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    uniq_code TEXT,
+    url_base TEXT,
+    views INTEGER,
+    finally_date TEXT
 );
+
+CREATE INDEX idx_url_table_uniq_code
+ON url_table (uniq_code);
 ```
 
-### Database configuration
-Environment variables for database configuration:
+
+## Переменные окружения
 ```env
-# Application Configuration
-LVL='DEV'
-DOMAIN_PROD='example.com'
-PREFIX_PROD="https"
-DOMAIN_DEV='localhost'
-PREFIX_DEV="http"
-PORT_DEV="5050"
-CODE_LENGTH=6
-SYMBOLS_BASE="QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890"
-URL_LIFE_DAYS=7
+# DEV или PROD
+MODE='DEV'
 
-# Database Configuration
-DB='../urlDB.sqlite'
-DRIVER='sqlite3'
+# Строка подключения к БД
+CONNECTION_STRING='postgres://url_user:url_password@postgres:5432/url_db?sslmode=disable'
+
+# Строка для генерации идентификатора
+SYMBOLS='QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890'
 ```
 
-## How to run
 
-### Prerequisites
-- **Go 1.21+** - [Install Go](https://go.dev/dl/)
-- **MinGW** - [Install MinGW](https://sourceforge.net/projects/mingw/files/Installer/)
-- **SQLite** - [Documentation](https://www.sqlite.org/)
-- **Git** - For version control
+## Как запустить
 
-### Quick start
-1. **Clone repository:**
+
+### Скопировать репозиторий
 ```bach
 git clone https://github.com/theforps/URL_shortener_Go_SERVER.git
+
 cd URL_shortener_Go_SERVER
+
+git checkout upgrade
 ```
-2. **Set up environment variables:**
+
+
+### Локальный запуск
+1. **Скопировать конфигурацию переменных окружения:**
 ```bach
 cp .env.example .env
 ```
 
-3. **Install dependencies:**
+2. **Установить зависимости:**
 ```bach
 go mod download
 go mod verify
 ```
 
-4. **Run the application:**
+3. **Запустить сервис:**
 ```bach
-# Development mode with hot reload
+# Запустить код
 go run cmd/main.go
 
-# Or build and run
+# Создать исполняемый файл и запустить
 go build -o api cmd/main.go
 ./api
 ```
 
-### Configuration Options
-Create a `.env` file with the following variables:
-```env
-# development environment DEV or PROD
-LVL='DEV'
+**Сервис будет запущен по ссылке:** `http://localhost:5050`
 
-# prod domain
-DOMAIN_PROD='example.com'
-# prod prefix
-PREFIX_PROD="https"
 
-# dev domain
-DOMAIN_DEV='localhost'
-# dev prefix
-PREFIX_DEV="http"
-# dev port
-PORT_DEV="5050"
-
-# database
-DB='../urlDB.sqlite'
-# database driver
-DRIVER='sqlite3'
-
-# length of the encrypted code
-CODE_LENGTH=6
-# character base for code generation
-SYMBOLS_BASE="QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890"
-# lifetime of the link in the database
-URL_LIFE_DAYS=7
+### Docker-compose
+```bash
+docker-compose up --build
 ```
 
-The API should now be running and accessible at `http://localhost:5050`
+**Сервис будет запущен по ссылке:** `http://localhost:8080`
