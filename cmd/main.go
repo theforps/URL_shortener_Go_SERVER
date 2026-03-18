@@ -1,41 +1,55 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"net/http"
+
 	"url_shortener/internal/config"
-	handlers2 "url_shortener/internal/handlers"
+	"url_shortener/internal/data"
+	"url_shortener/internal/handler"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
 
-	configuration, err := config.NewConfiguration()
+	// init logger
+	logger := log.Default()
+
+	// init config
+	configuration, err := config.Default()
 	if err != nil {
-		log.Println(err)
+		logger.Println(err)
 	}
 
-	handler := newHandler(configuration)
-
-	server := &http.Server{
-		Addr:    fmt.Sprintf(":%s", configuration.DomainConfig.PortDev),
-		Handler: handler,
-	}
-
-	log.Printf("the server started on port %s", configuration.DomainConfig.PortDev)
-
-	err = server.ListenAndServe()
+	// init db
+	db, err := data.Setup(configuration)
 	if err != nil {
-		log.Printf("the server is stopped due to an error: %v", err)
+		logger.Fatalln(err)
 	}
-}
 
-func newHandler(configuration *config.Config) *http.ServeMux {
+	if configuration.Mode == "PROD" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
-	mux := http.NewServeMux()
+	// init web
+	engine := gin.Default()
 
-	mux.HandleFunc("/create-url", handlers2.Create(configuration))
-	mux.HandleFunc("/{code}", handlers2.Redirect(configuration))
+	// init handler
+	handler.Init(engine, configuration, db, logger)
 
-	return mux
+	// check status
+	engine.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "ok",
+			"service": "url-api",
+		})
+	})
+
+	logger.Println("the server started on port 5050")
+
+	// run server
+	err = engine.Run(":5050")
+	if err != nil {
+		logger.Printf("the server is stopped due to an error: %v", err)
+	}
 }
