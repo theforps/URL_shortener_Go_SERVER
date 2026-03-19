@@ -49,9 +49,9 @@ API предназначен для создания коротких ссыло
 - **Успешный ответ** (200 OK):
 ```json
 {
-	"status_code": 200,
-	"description": "ok",
-	"data": 63
+  "status_code": 200,
+  "description": "ok",
+  "data": 63
 }
 ```
 
@@ -134,6 +134,8 @@ go build -o api cmd/main.go
 ### Docker-compose
 ```bash
 docker-compose up --build
+
+docker-compose down
 ```
 
 **Сервис будет запущен по ссылке:** `http://localhost:8080`
