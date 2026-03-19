@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: test_db
+      POSTGRES_PASSWORD: test
+      POSTGRES_USER: test
+    healthcheck:
+      test: pg_isready --username "test" --dbname "test_db"
+      interval: 1s
+      retries: 3
+      timeout: 5s
+    ports:
+      - "4321:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
