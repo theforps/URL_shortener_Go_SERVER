@@ -17,3 +17,8 @@ type URL struct {
 	Views       int    `json:"views"`
 	FinallyDate string `json:"finally_date"`
 }
+
+type URLStats struct {
+	Views       int    `json:"views"`
+	FinallyDate string `json:"finally_date"`
+}
