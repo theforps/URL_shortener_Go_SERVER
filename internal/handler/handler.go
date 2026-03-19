@@ -85,7 +85,7 @@ func (uh *UrlHandler) Stats(c *gin.Context) {
 			Description: "bad request",
 		})
 	} else {
-		response := uh.routeService.GetViews(uniq_code)
+		response := uh.routeService.GetStats(uniq_code)
 		cookResponse(c, uh.logger, response)
 	}
 }
