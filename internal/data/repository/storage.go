@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"url_shortener/internal/data/models"
 )
 
 type StorageRepositoryDB struct {
@@ -96,18 +97,22 @@ func (sr *StorageRepositoryDB) GetBaseUrl(code string) (string, error) {
 	return baseUrl, nil
 }
 
-func (sr *StorageRepositoryDB) GetViews(code string) (int, error) {
+func (sr *StorageRepositoryDB) GetStats(code string) (*models.URLStats, error) {
 
 	rows := sr.db.QueryRow(
-		"SELECT views FROM url_table WHERE uniq_code = $1;", code)
+		"SELECT views, finally_date FROM url_table WHERE uniq_code = $1;", code)
 
 	var views int
-	err := rows.Scan(&views)
+	var finDate string
+	err := rows.Scan(&views, &finDate)
 	if err != nil {
-		return 0, fmt.Errorf("couldn't get views by code '%s': %v", code, err)
+		return nil, fmt.Errorf("couldn't get views by code '%s': %v", code, err)
 	}
 
-	return views, nil
+	return &models.URLStats{
+		Views: views,
+		FinallyDate: finDate,
+	}, nil
 }
 
 func (sr *StorageRepositoryDB) IncreaseViews(code string) error {

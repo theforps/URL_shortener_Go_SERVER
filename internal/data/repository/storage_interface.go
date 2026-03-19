@@ -1,5 +1,7 @@
 package repository
 
+import "url_shortener/internal/data/models"
+
 type StorageRepository interface {
 	IsExists(code string) (bool, error)
 
@@ -9,7 +11,7 @@ type StorageRepository interface {
 
 	GetBaseUrl(code string) (string, error)
 
-	GetViews(code string) (int, error)
+	GetStats(code string) (*models.URLStats, error)
 
 	IncreaseViews(code string) error
 }
